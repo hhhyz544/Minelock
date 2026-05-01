@@ -32,7 +32,7 @@ after 24 hours.
 gradle build
 ```
 
-The jar will be in `build/libs/MineLock-1.0.0.jar`.
+The jar will be in `build/libs/MineLock-1.1.0.jar`.
 
 If your server is newer than the compile API in `build.gradle`, you can update
 the `paper-api` version. The plugin only uses stable Bukkit/Paper APIs.

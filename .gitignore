@@ -5,4 +5,5 @@ target/
 *.iml
 .idea/
 *.jar
+!releases/*.jar
 .DS_Store
