@@ -14,6 +14,7 @@ public final class ConfigValues {
 
     public final boolean premiumDetect;
     public final boolean premiumAutoLoginVerified;
+    public final boolean premiumRewriteUuidFromName;
     public final boolean blockUnverifiedPremiumNames;
     public final int premiumLookupTimeoutMs;
     public final int premiumLookupCacheMinutes;
@@ -45,6 +46,7 @@ public final class ConfigValues {
 
         this.premiumDetect = config.getBoolean("premium.detect", true);
         this.premiumAutoLoginVerified = config.getBoolean("premium.auto-login-verified", true);
+        this.premiumRewriteUuidFromName = config.getBoolean("premium.rewrite-uuid-from-premium-name", false);
         this.blockUnverifiedPremiumNames = config.getBoolean("premium.block-unverified-premium-names", false);
         this.premiumLookupTimeoutMs = Math.max(250, config.getInt("premium.lookup-timeout-ms", 2500));
         this.premiumLookupCacheMinutes = Math.max(1, config.getInt("premium.lookup-cache-minutes", 60));

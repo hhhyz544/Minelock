@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Level;
 
 public final class LoginListener implements Listener {
     private static final Set<String> ALLOWED_COMMANDS = Set.of(
@@ -65,7 +66,9 @@ public final class LoginListener implements Listener {
             }
         }
 
-        PlayerIdentity identity = PlayerIdentity.detect(event.getName(), event.getUniqueId(), premiumLookup);
+        boolean uuidRewritten = tryRewriteUuidFromPremiumName(event, premiumLookup);
+        UUID loginUuid = uuidRewritten ? premiumLookup.uuid() : event.getUniqueId();
+        PlayerIdentity identity = PlayerIdentity.detect(event.getName(), loginUuid, premiumLookup, uuidRewritten);
         if (identity.isUnverifiedPremiumName() && settings.blockUnverifiedPremiumNames) {
             event.disallow(AsyncPlayerPreLoginEvent.Result.KICK_OTHER, settings.rawMessage("kick-unverified-premium-name"));
             return;
@@ -80,9 +83,33 @@ public final class LoginListener implements Listener {
         );
 
         boolean registered = plugin.userStore().hasPassword(event.getName());
-        boolean autoLogin = identity.isPremiumVerified() && settings.premiumAutoLoginVerified;
+        boolean autoLogin = !uuidRewritten && identity.isPremiumVerified() && settings.premiumAutoLoginVerified;
         boolean captchaRequired = !autoLogin && plugin.antiBotService().shouldRequireCaptcha(decision.suspicious());
-        pendingProfiles.put(event.getUniqueId(), new PreLoginProfile(identity, address, registered, autoLogin, captchaRequired));
+        pendingProfiles.put(loginUuid, new PreLoginProfile(identity, address, registered, autoLogin, captchaRequired));
+    }
+
+    private boolean tryRewriteUuidFromPremiumName(AsyncPlayerPreLoginEvent event, PremiumLookup premiumLookup) {
+        if (!plugin.settings().premiumRewriteUuidFromName || premiumLookup == null || !premiumLookup.isPremium()) {
+            return false;
+        }
+        if (premiumLookup.uuid().equals(event.getUniqueId())) {
+            return false;
+        }
+        try {
+            Class<?> profileClass = Class.forName("com.destroystokyo.paper.profile.PlayerProfile");
+            Object profile = Bukkit.class
+                    .getMethod("createProfile", UUID.class, String.class)
+                    .invoke(null, premiumLookup.uuid(), event.getName());
+            event.getClass().getMethod("setPlayerProfile", profileClass).invoke(event, profile);
+            return true;
+        } catch (ReflectiveOperationException | LinkageError ex) {
+            plugin.getLogger().log(
+                    Level.WARNING,
+                    "premium.rewrite-uuid-from-premium-name requires Paper profile APIs; UUID was not rewritten.",
+                    ex
+            );
+            return false;
+        }
     }
 
     @EventHandler(priority = EventPriority.MONITOR)

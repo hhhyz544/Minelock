@@ -4,6 +4,11 @@ premium:
   # Mojang UUID, which normally requires online-mode or secure proxy forwarding.
   detect: true
   auto-login-verified: true
+  # Unsafe compatibility mode for offline-mode servers. When enabled, a premium
+  # name found through Mojang's API will use the Mojang UUID even if the server
+  # is offline-mode. This keeps old online-mode player data, but it cannot prove
+  # the player owns that premium account. Players still need /login or /register.
+  rewrite-uuid-from-premium-name: false
   block-unverified-premium-names: false
   lookup-timeout-ms: 2500
   lookup-cache-minutes: 60

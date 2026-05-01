@@ -16,6 +16,11 @@ only auto-logins premium players when the login UUID equals Mojang's UUID. Use
 `online-mode=true` or Velocity/Bungee secure UUID forwarding if you want safe
 premium auto-login.
 
+If you must run offline-mode and want to keep old premium UUID-based data, enable
+`premium.rewrite-uuid-from-premium-name`. This rewrites the login UUID to the
+Mojang UUID when the name exists, but it is name-based compatibility mode, not
+real ownership verification. Password login is still required.
+
 ## Build
 
 ```bash

@@ -11,10 +11,16 @@ public record PlayerIdentity(
         IdentityType type
 ) {
     public static PlayerIdentity detect(String name, UUID providedUuid, PremiumLookup premiumLookup) {
+        return detect(name, providedUuid, premiumLookup, false);
+    }
+
+    public static PlayerIdentity detect(String name, UUID providedUuid, PremiumLookup premiumLookup, boolean rewrittenByName) {
         UUID offlineUuid = offlineUuid(name);
         UUID premiumUuid = premiumLookup != null && premiumLookup.isPremium() ? premiumLookup.uuid() : null;
         IdentityType type;
-        if (premiumUuid != null && premiumUuid.equals(providedUuid)) {
+        if (rewrittenByName && premiumUuid != null && premiumUuid.equals(providedUuid)) {
+            type = IdentityType.PREMIUM_REWRITTEN;
+        } else if (premiumUuid != null && premiumUuid.equals(providedUuid)) {
             type = IdentityType.PREMIUM_VERIFIED;
         } else if (premiumUuid != null) {
             type = IdentityType.PREMIUM_NAME;
