@@ -1,0 +1,31 @@
+name: MineLock
+version: ${version}
+main: cn.minelock.auth.MineLockPlugin
+api-version: "1.20"
+author: zzy
+description: Login, premium identity detection, third-party UUID storage, and anti-bot protection.
+
+commands:
+  login:
+    description: Login with your password.
+    usage: /login <password>
+    aliases: [l]
+  register:
+    description: Register your account.
+    usage: /register <password> <password>
+    aliases: [reg]
+  captcha:
+    description: Complete the login captcha.
+    usage: /captcha <code>
+  changepassword:
+    description: Change your password.
+    usage: /changepassword <oldPassword> <newPassword> <newPassword>
+    aliases: [cpw]
+  minelock:
+    description: MineLock administration command.
+    usage: /minelock reload
+
+permissions:
+  minelock.admin:
+    description: Allows reloading MineLock.
+    default: op

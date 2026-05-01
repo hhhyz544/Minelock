@@ -1,0 +1,58 @@
+premium:
+  # Checks Mojang's profile API by player name. A found profile is recorded as a
+  # premium name. It is only treated as verified when the login UUID equals the
+  # Mojang UUID, which normally requires online-mode or secure proxy forwarding.
+  detect: true
+  auto-login-verified: true
+  block-unverified-premium-names: false
+  lookup-timeout-ms: 2500
+  lookup-cache-minutes: 60
+  fail-closed-on-lookup-error: false
+
+security:
+  password-min-length: 6
+  password-hash-iterations: 120000
+  login-timeout-seconds: 60
+  max-login-attempts: 5
+  allow-session-reconnect: false
+  session-reconnect-minutes: 10
+
+anti-bot:
+  invalid-name-kick: true
+  min-seconds-between-connections: 1
+  max-connections-per-ip-per-minute: 8
+  temp-ban-seconds: 120
+  captcha-mode: suspicious # off, always, suspicious
+  captcha-connections-per-ip-per-minute: 3
+  captcha-global-connections-per-10s: 20
+  max-failed-logins-per-ip: 8
+  failed-login-window-seconds: 300
+
+messages:
+  prefix: "&8[&bMineLock&8] &7"
+  kick-invalid-name: "&c你的游戏 ID 不合法。"
+  kick-too-fast: "&c连接太快了，请稍后再试。"
+  kick-bot-rate: "&c当前连接频率异常，请稍后再试。"
+  kick-premium-lookup-failed: "&c暂时无法验证正版 ID，请稍后再试。"
+  kick-unverified-premium-name: "&c这个正版 ID 需要通过正版登录或代理转发验证。"
+  kick-login-timeout: "&c登录超时，请重新进入服务器。"
+  kick-too-many-attempts: "&c密码错误次数过多，请稍后再试。"
+  captcha-required: "&e请输入 &f/captcha {code} &e完成验证。"
+  captcha-wrong: "&c验证码错误。"
+  captcha-ok: "&a验证通过，现在可以登录或注册。"
+  need-login: "&e请使用 &f/login <密码> &e登录。"
+  need-register: "&e请使用 &f/register <密码> <密码> &e注册。"
+  login-success: "&a登录成功。"
+  premium-auto-login: "&a已识别正版 ID，自动登录。"
+  already-authenticated: "&a你已经登录了。"
+  not-authenticated: "&c你还没有登录。"
+  command-blocked: "&c登录前只能使用登录相关命令。"
+  chat-blocked: "&c请先登录。"
+  password-too-short: "&c密码至少需要 {min} 位。"
+  password-mismatch: "&c两次输入的密码不一致。"
+  password-wrong: "&c密码错误。"
+  registered: "&a注册成功，已自动登录。"
+  already-registered: "&c这个游戏 ID 已经注册，请使用 /login。"
+  not-registered: "&c这个游戏 ID 还没有注册，请使用 /register。"
+  password-changed: "&a密码已修改。"
+  reload-ok: "&a配置已重载。"
