@@ -55,6 +55,7 @@ public final class AuthCommand implements CommandExecutor, TabCompleter {
         }
         if (plugin.userStore().verifyPassword(player.getName(), args[0])) {
             plugin.sessionManager().authenticate(player);
+            plugin.userStore().rememberOfflineAutoLogin(player.getName(), session.address(), plugin.settings());
             plugin.antiBotService().recordSuccessfulLogin(session.address());
             player.sendMessage(plugin.settings().message("login-success"));
             return true;
@@ -104,6 +105,7 @@ public final class AuthCommand implements CommandExecutor, TabCompleter {
         }
         plugin.userStore().setPassword(player.getName(), args[0], plugin.settings().passwordHashIterations);
         plugin.sessionManager().authenticate(player);
+        plugin.userStore().rememberOfflineAutoLogin(player.getName(), session.address(), plugin.settings());
         plugin.antiBotService().recordSuccessfulLogin(session.address());
         plugin.captchaService().remove(player);
         player.sendMessage(plugin.settings().message("registered"));

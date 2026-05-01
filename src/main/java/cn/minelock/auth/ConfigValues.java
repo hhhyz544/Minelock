@@ -26,6 +26,9 @@ public final class ConfigValues {
     public final int maxLoginAttempts;
     public final boolean allowSessionReconnect;
     public final int sessionReconnectMinutes;
+    public final boolean offlineAutoLoginEnabled;
+    public final boolean offlineAutoLoginSameIpOnly;
+    public final int offlineAutoLoginTtlHours;
 
     public final boolean invalidNameKick;
     public final int minSecondsBetweenConnections;
@@ -58,6 +61,9 @@ public final class ConfigValues {
         this.maxLoginAttempts = Math.max(1, config.getInt("security.max-login-attempts", 5));
         this.allowSessionReconnect = config.getBoolean("security.allow-session-reconnect", false);
         this.sessionReconnectMinutes = Math.max(1, config.getInt("security.session-reconnect-minutes", 10));
+        this.offlineAutoLoginEnabled = config.getBoolean("offline-auto-login.enabled", false);
+        this.offlineAutoLoginSameIpOnly = config.getBoolean("offline-auto-login.same-ip-only", true);
+        this.offlineAutoLoginTtlHours = Math.max(1, config.getInt("offline-auto-login.ttl-hours", 24));
 
         this.invalidNameKick = config.getBoolean("anti-bot.invalid-name-kick", true);
         this.minSecondsBetweenConnections = Math.max(0, config.getInt("anti-bot.min-seconds-between-connections", 1));

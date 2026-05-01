@@ -83,9 +83,16 @@ public final class LoginListener implements Listener {
         );
 
         boolean registered = plugin.userStore().hasPassword(event.getName());
+        AutoLoginType autoLoginType = AutoLoginType.NONE;
         boolean autoLogin = !uuidRewritten && identity.isPremiumVerified() && settings.premiumAutoLoginVerified;
+        if (autoLogin) {
+            autoLoginType = AutoLoginType.PREMIUM;
+        } else if (!decision.suspicious() && plugin.userStore().canOfflineAutoLogin(event.getName(), address, settings)) {
+            autoLogin = true;
+            autoLoginType = AutoLoginType.OFFLINE;
+        }
         boolean captchaRequired = !autoLogin && plugin.antiBotService().shouldRequireCaptcha(decision.suspicious());
-        pendingProfiles.put(loginUuid, new PreLoginProfile(identity, address, registered, autoLogin, captchaRequired));
+        pendingProfiles.put(loginUuid, new PreLoginProfile(identity, address, registered, autoLogin, autoLoginType, captchaRequired));
     }
 
     private boolean tryRewriteUuidFromPremiumName(AsyncPlayerPreLoginEvent event, PremiumLookup premiumLookup) {
@@ -123,6 +130,7 @@ public final class LoginListener implements Listener {
                     player.getAddress() == null ? null : player.getAddress().getAddress(),
                     plugin.userStore().hasPassword(player.getName()),
                     false,
+                    AutoLoginType.NONE,
                     true
             );
         }
@@ -130,7 +138,7 @@ public final class LoginListener implements Listener {
         AuthSession session = plugin.sessionManager().begin(player, profile);
         if (session.authenticated()) {
             plugin.antiBotService().recordSuccessfulLogin(session.address());
-            player.sendMessage(plugin.settings().message(profile.autoLogin() ? "premium-auto-login" : "login-success"));
+            player.sendMessage(plugin.settings().message(autoLoginMessage(profile.autoLoginType())));
             return;
         }
 
@@ -264,5 +272,13 @@ public final class LoginListener implements Listener {
             command = command.substring(namespace + 1);
         }
         return command.toLowerCase(Locale.ROOT);
+    }
+
+    private static String autoLoginMessage(AutoLoginType type) {
+        return switch (type) {
+            case PREMIUM -> "premium-auto-login";
+            case OFFLINE -> "offline-auto-login";
+            case NONE -> "login-success";
+        };
     }
 }

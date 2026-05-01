@@ -6,12 +6,20 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetAddress;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.time.Instant;
+import java.util.Base64;
 import java.util.Locale;
 import java.util.UUID;
 import java.util.logging.Level;
 
 public final class UserStore {
+    private static final SecureRandom RANDOM = new SecureRandom();
+
     private final JavaPlugin plugin;
     private final File file;
     private YamlConfiguration users;
@@ -108,6 +116,45 @@ public final class UserStore {
         return PasswordHasher.verify(password, record.passwordIterations(), record.passwordSalt(), record.passwordHash());
     }
 
+    public synchronized boolean canOfflineAutoLogin(String playerName, InetAddress address, ConfigValues settings) {
+        if (!settings.offlineAutoLoginEnabled) {
+            return false;
+        }
+        UserRecord record = get(playerName);
+        if (record == null || !record.hasPassword()) {
+            return false;
+        }
+        String path = "users." + key(playerName) + ".auto-login";
+        long lastSuccess = users.getLong(path + ".last-success", 0L);
+        if (lastSuccess <= 0L) {
+            return false;
+        }
+        long maxAge = settings.offlineAutoLoginTtlHours * 60L * 60L * 1000L;
+        if (System.currentTimeMillis() - lastSuccess > maxAge) {
+            return false;
+        }
+        if (!settings.offlineAutoLoginSameIpOnly) {
+            return true;
+        }
+        String expectedHash = users.getString(path + ".address-hash");
+        String actualHash = hashAddress(address);
+        return expectedHash != null && expectedHash.equals(actualHash);
+    }
+
+    public synchronized void rememberOfflineAutoLogin(String playerName, InetAddress address, ConfigValues settings) {
+        if (!settings.offlineAutoLoginEnabled) {
+            return;
+        }
+        String addressHash = hashAddress(address);
+        if (settings.offlineAutoLoginSameIpOnly && addressHash == null) {
+            return;
+        }
+        String path = "users." + key(playerName) + ".auto-login";
+        users.set(path + ".last-success", System.currentTimeMillis());
+        users.set(path + ".address-hash", addressHash);
+        save();
+    }
+
     private synchronized void save() {
         try {
             users.save(file);
@@ -144,5 +191,33 @@ public final class UserStore {
         } catch (IllegalArgumentException ignored) {
             return IdentityType.OFFLINE;
         }
+    }
+
+    private String hashAddress(InetAddress address) {
+        if (address == null) {
+            return null;
+        }
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            digest.update(autoLoginSecret().getBytes(StandardCharsets.UTF_8));
+            digest.update((byte) ':');
+            digest.update(address.getHostAddress().getBytes(StandardCharsets.UTF_8));
+            return Base64.getUrlEncoder().withoutPadding().encodeToString(digest.digest());
+        } catch (NoSuchAlgorithmException ex) {
+            throw new IllegalStateException("SHA-256 is unavailable", ex);
+        }
+    }
+
+    private String autoLoginSecret() {
+        String secret = users.getString("meta.auto-login-secret");
+        if (secret != null && !secret.isBlank()) {
+            return secret;
+        }
+        byte[] bytes = new byte[32];
+        RANDOM.nextBytes(bytes);
+        secret = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+        users.set("meta.auto-login-secret", secret);
+        save();
+        return secret;
     }
 }

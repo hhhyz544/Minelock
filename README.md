@@ -6,6 +6,7 @@ MineLock is a Paper/Spigot login plugin with:
 - Verified premium auto-login when the server/proxy supplies the Mojang UUID.
 - Offline and third-party UUID storage in `plugins/MineLock/users.yml`.
 - Password registration/login for non-verified accounts.
+- Optional offline auto-login after a successful password login.
 - Anti-bot limits, login freeze, timeout, failed-login bans, and optional captcha.
 
 ## Important security note
@@ -20,6 +21,10 @@ If you must run offline-mode and want to keep old premium UUID-based data, enabl
 `premium.rewrite-uuid-from-premium-name`. This rewrites the login UUID to the
 Mojang UUID when the name exists, but it is name-based compatibility mode, not
 real ownership verification. Password login is still required.
+
+For offline players who have already logged in with a password, enable
+`offline-auto-login.enabled`. By default it only trusts the same IP and expires
+after 24 hours.
 
 ## Build
 

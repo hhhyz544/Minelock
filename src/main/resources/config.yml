@@ -22,6 +22,11 @@ security:
   allow-session-reconnect: false
   session-reconnect-minutes: 10
 
+offline-auto-login:
+  enabled: false
+  same-ip-only: true
+  ttl-hours: 24
+
 anti-bot:
   invalid-name-kick: true
   min-seconds-between-connections: 1
@@ -49,6 +54,7 @@ messages:
   need-register: "&e请使用 &f/register <密码> <密码> &e注册。"
   login-success: "&a登录成功。"
   premium-auto-login: "&a已识别正版 ID，自动登录。"
+  offline-auto-login: "&a已识别常用登录环境，自动登录。"
   already-authenticated: "&a你已经登录了。"
   not-authenticated: "&c你还没有登录。"
   command-blocked: "&c登录前只能使用登录相关命令。"

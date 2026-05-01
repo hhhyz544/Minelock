@@ -7,6 +7,7 @@ public record PreLoginProfile(
         InetAddress address,
         boolean registered,
         boolean autoLogin,
+        AutoLoginType autoLoginType,
         boolean captchaRequired
 ) {
 }
